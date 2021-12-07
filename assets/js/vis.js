@@ -2,17 +2,24 @@
 const svguri = "http://www.w3.org/2000/svg";
 
 const testpiedata = [
-    {per:12.5, text:"testing data", color:"#00aa00"},
-    {per:12.5, text:"testing data", color:"#aa0000"},
-    {per:25, text:"testing data", color:"#aa00aa"},
-    {per:50, text:"testing data", color:"#0000aa"},
+    {per:12.5, text:"testing one", color:"#00aa00"},
+    {per:12.5, text:"testing two", color:"#aa0000"},
+    {per:25, text:"testing three", color:"#aa00aa"},
+    {per:50, text:"testing four", color:"#0000aa"},
 ];
 
 const testbardata = [
     {count:200, text:"testing data", color:"#00aa00"},
     {count:15, text:"data", color:"#aa0000"},
-    {count:15, text:"testing data", color:"#0000aa"},
+    {count:15, text:"testing data", color:"#aa00aa"},
 ];
+
+const testformatbardata = {
+    "testing one":12,
+    "testing two":13,
+    "testing three":25,
+    "testing four":50,
+};
 
 class Vector {
     constructor (x, y) {
@@ -76,7 +83,7 @@ const piechart = svg.children[1];
 const barchart = svg.children[2];
 
 // some constants
-const dulltext = "#888888";
+const dulltext = "#999999";
 
 // makes a circle
 function circle (cx, cy, r, fill) {
@@ -196,14 +203,13 @@ function makebar (data) {
     for (let i = 0; i < data.length; i ++) {
         const section = data[i];
         const tpl = section.text.length*15/4;
-        const cl = section.count.toString().length;
-        console.log(tpl, tpl-w/2, section.text.length, x, cl, cl*15/2);
-        // -15.75
+        const cl = section.value.toString().length;
+        // console.log(tpl, tpl-w/2, section.text.length, x, cl, cl*15/2);
         const r = rect(x+tpl-w/2, 100-section.count, w, section.count, section.color);
         barchart.appendChild(r);
-        let t = text(section.text, x, 115, section.color, tpl*2, true);
+        let t = text(section.text, x, 115, /*section.color*/dulltext, tpl*2, true);
         barchart.appendChild(t);
-        t = text(section.count, x+tpl-(cl*7.5/2), 95-section.count, dulltext, cl*7.5, true);
+        t = text(section.value, x+tpl-(cl*7.5/2), 95-section.count, dulltext, cl*7.5, true);
         barchart.appendChild(t);
         x += Math.max(section.text.length*15/1.5, w)+5;
     }
@@ -292,18 +298,16 @@ function sortjsdata (data) {
 // formats data for bar chart
 function formatbar (data) {
     data = sortjsdata(data);
-    console.log(data);
     let output = [];
     let other = 0;
     let maxv = data[0].count;
     for (let i = 0; i < data.length; i ++) {
         const dat = data[i];
-        console.log(dat);
         if (data.count < 15 && output.length >= 5) {
-            other += data.count;
+            other += dat.count;
             continue;
         }
-        output.push({count:data.count, text:data.name, color:getrandcolor()});
+        output.push({count:dat.count, value:dat.count, text:dat.name, color:getrandcolor()});
     }
     // adds other bar
     if (other > 0) {
@@ -314,7 +318,7 @@ function formatbar (data) {
     }
     for (let i = 0; i < output.length; i ++) {
         let v = output[i].count;
-        output[i].count = v*maxv/100;
+        output[i].count = v*100/maxv;
     }
     return output;
 }
@@ -324,7 +328,8 @@ function render (jsdata, jsordered) {
     makepie(testpiedata);
     // renders the pie chart
     // makepie(formatpie(jsordered));
-    makebar(testbardata);
+    // makebar(testbardata);
+    makebar(formatbar(testformatbardata));
     // renders the bar chart
     // makebar(formatbar(jsdata));
 }
