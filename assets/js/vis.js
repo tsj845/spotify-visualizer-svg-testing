@@ -9,8 +9,8 @@ const testpiedata = [
 ];
 
 const testbardata = [
-    {count:15, text:"testing data", color:"#00aa00"},
-    {count:15, text:"testing data", color:"#aa0000"},
+    {count:200, text:"testing data", color:"#00aa00"},
+    {count:15, text:"data", color:"#aa0000"},
     {count:15, text:"testing data", color:"#0000aa"},
 ];
 
@@ -106,9 +106,6 @@ function text (text, x, y, fill, s, hf) {
     t.setAttribute("transform", "translate("+x+" "+y+")");
     if (s !== undefined) {
         t.setAttribute(hf?"textLength":"height", s);
-        if (hf) {
-            t.setAttribute("lengthAdjust", "spacingAndGlyphs");
-        }
     }
     t.setAttribute("fill", fill);
     return t;
@@ -198,12 +195,15 @@ function makebar (data) {
     let x = 5;
     for (let i = 0; i < data.length; i ++) {
         const section = data[i];
-        const tpl = section.text.length*15/2;
-        const r = rect(x+tpl-w-5, 100-section.count, w, section.count, section.color);
+        const tpl = section.text.length*15/4;
+        const cl = section.count.toString().length;
+        console.log(tpl, tpl-w/2, section.text.length, x, cl, cl*15/2);
+        // -15.75
+        const r = rect(x+tpl-w/2, 100-section.count, w, section.count, section.color);
         barchart.appendChild(r);
-        let t = text(section.text, x, 115, section.color);
+        let t = text(section.text, x, 115, section.color, tpl*2, true);
         barchart.appendChild(t);
-        t = text(section.count, x+tpl-w/2-(section.count.toString().length*15/2), 95-section.count, dulltext);
+        t = text(section.count, x+tpl-(cl*7.5/2), 95-section.count, dulltext, cl*7.5, true);
         barchart.appendChild(t);
         x += Math.max(section.text.length*15/1.5, w)+5;
     }
@@ -295,6 +295,7 @@ function formatbar (data) {
     console.log(data);
     let output = [];
     let other = 0;
+    let maxv = data[0].count;
     for (let i = 0; i < data.length; i ++) {
         const dat = data[i];
         console.log(dat);
@@ -307,6 +308,13 @@ function formatbar (data) {
     // adds other bar
     if (other > 0) {
         output.push({count:other, text:"other", color:"#aa8800"});
+        if (other > maxv) {
+            maxv = other;
+        }
+    }
+    for (let i = 0; i < output.length; i ++) {
+        let v = output[i].count;
+        output[i].count = v*maxv/100;
     }
     return output;
 }
