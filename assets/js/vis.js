@@ -15,10 +15,10 @@ const testbardata = [
 ];
 
 const testformatbardata = {
-    "testing one":12,
-    "testing two":13,
-    "testing three":25,
-    "testing four":50,
+    "testing one":25,
+    "testing two":25,
+    "testing three":50,
+    "testing four":100,
 };
 
 class Vector {
@@ -57,6 +57,50 @@ class Vector {
     rot (n) {
         n = (Math.PI / 180) * n
         return new Vector(this.x * Math.cos(n) - this.y * Math.sin(n), this.x * Math.sin(n) + this.y * Math.cos(n));
+    }
+}
+
+class Color {
+    constructor (r, g, b) {
+        this.r = r===undefined?randrange(0, 255):r;
+        this.g = g===undefined?randrange(0, 255):g;
+        this.b = b===undefined?randrange(0, 255):b;
+        this.limit(0, 255);
+    }
+    low (v) {
+        this.r = Math.max(this.r, v);
+        this.g = Math.max(this.g, v);
+        this.b = Math.max(this.g, v);
+    }
+    high (v) {
+        this.r = Math.min(this.r, v);
+        this.g = Math.min(this.g, v);
+        this.b = Math.min(this.b, v);
+    }
+    limit (l, h) {
+        this.low(l);
+        this.high(h);
+    }
+    hex (compind) {
+        const conv = "0123456789abcdef";
+        let x = "";
+        switch (compind) {
+            case 0:
+                x = conv[(this.r-this.r%16)/16]+conv[this.r%16];
+                break;
+            case 1:
+                x = conv[(this.g-this.g%16)/16]+conv[this.g%16];
+                break;
+            case 2:
+                x = conv[(this.b-this.b%16)/16]+conv[this.b%16];
+                break;
+            default:
+                break;
+        }
+        return x;
+    }
+    toString () {
+        return "#"+this.hex(0)+this.hex(1)+this.hex(2);
     }
 }
 
@@ -238,11 +282,9 @@ function arr2hex (arr) {
 
 // gets random hex color code
 function getrandcolor () {
-    let comp = [];
-    for (let i = 0; i < 3; i ++) {
-        comp.push(randrange(0, 255));
-    }
-    return "#" + arr2hex(comp);
+    let c = new Color();
+    c.limit(100, 200);
+    return c.toString();
 }
 
 // gets random color that is very bright
